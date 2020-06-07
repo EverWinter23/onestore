@@ -1,4 +1,4 @@
-version: '3'
+version: '3.7'
 
 services:
   elasticsearch:
@@ -17,11 +17,22 @@ services:
       - esdata:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
+    restart: unless-stopped
 
   kibana:
     image: docker.elastic.co/kibana/kibana:7.7.1
     ports:
       - 5601:5601
+    restart: unless-stopped
+    depends_on: [elasticsearch]
+
+  ingestor:
+    build: .
+    command: python scraper.py
+    restart: unless-stopped
+    volumes:
+      - .:/onestore
+    depends_on: [elasticsearch]
 
 volumes:
   esdata:
